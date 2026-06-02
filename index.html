@@ -1,0 +1,357 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+<title>Mixer Carga</title>
+<style>
+  :root {
+    --verde:     #2d6a4f;
+    --verde-osc: #1b4332;
+    --verde-cla: #d8f3dc;
+    --acento:    #52b788;
+    --borde:     #ccc;
+    --texto:     #222;
+    --rojo:      #c0392b;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    background: #e9f5ec;
+    color: var(--texto);
+    min-height: 100vh;
+  }
+
+  header {
+    background: var(--verde-osc);
+    color: white;
+    padding: 14px 16px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    position: sticky;
+    top: 0;
+    z-index: 200;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.3);
+  }
+  header h1 { font-size: 1.2rem; font-weight: 700; letter-spacing: 0.02em; }
+  .header-back {
+    background: rgba(255,255,255,0.15);
+    border: none; color: white;
+    font-size: 1rem; font-weight: 700;
+    padding: 8px 14px; border-radius: 8px; cursor: pointer;
+  }
+  .header-back:active { background: rgba(255,255,255,0.25); }
+
+  .tabs { display: flex; background: var(--verde); }
+  .tab {
+    flex: 1; padding: 13px 8px; text-align: center;
+    color: rgba(255,255,255,0.65); font-size: 0.9rem; font-weight: 700;
+    cursor: pointer; border-bottom: 3px solid transparent; transition: all 0.2s;
+  }
+  .tab.active { color: white; border-bottom-color: #b7e4c7; background: rgba(255,255,255,0.1); }
+
+  .paso { display: none; }
+  .paso.activo { display: block; }
+  .seccion { display: none; }
+  .seccion.activa { display: block; }
+
+  .wrap { padding: 16px; max-width: 500px; margin: 0 auto; padding-bottom: 32px; }
+
+  .card {
+    background: white; border-radius: 12px;
+    padding: 18px; margin-bottom: 14px;
+    box-shadow: 0 1px 5px rgba(0,0,0,0.09);
+  }
+  .card-tit {
+    font-size: 0.72rem; font-weight: 800;
+    text-transform: uppercase; letter-spacing: 0.07em;
+    color: var(--verde); margin-bottom: 14px;
+  }
+
+  .campo { margin-bottom: 16px; }
+  .campo:last-child { margin-bottom: 0; }
+
+  input[type="date"] {
+    width: 100%; padding: 16px 14px;
+    border: 2.5px solid var(--verde); border-radius: 10px;
+    font-size: 1.5rem; font-weight: 700;
+    color: var(--verde-osc); background: white;
+    appearance: none; -webkit-appearance: none;
+  }
+  input[type="date"]:focus { outline: none; border-color: var(--acento); }
+
+  .turno-wrap { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+  .turno-btn {
+    padding: 20px 10px; text-align: center;
+    border: 2.5px solid var(--borde); border-radius: 12px;
+    font-size: 1.2rem; font-weight: 800;
+    cursor: pointer; background: white; color: #555; transition: all 0.18s;
+  }
+  .turno-btn.sel { border-color: var(--verde); background: var(--verde-cla); color: var(--verde-osc); }
+
+  .cat-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+  .cat-btn {
+    padding: 18px 10px; text-align: center;
+    border: 2.5px solid var(--borde); border-radius: 12px;
+    font-size: 1.05rem; font-weight: 700;
+    cursor: pointer; background: white; color: #444;
+    transition: all 0.18s; line-height: 1.25;
+  }
+  .cat-btn.sel { border-color: var(--verde); background: var(--verde-cla); color: var(--verde-osc); }
+
+  .btn-sig {
+    display: block; width: 100%; padding: 20px;
+    background: var(--verde); color: white; border: none;
+    border-radius: 12px; font-size: 1.2rem; font-weight: 800;
+    cursor: pointer; margin-top: 6px; letter-spacing: 0.03em;
+    box-shadow: 0 4px 12px rgba(45,106,79,0.4);
+    transition: background 0.15s, transform 0.1s;
+  }
+  .btn-sig:active { transform: scale(0.98); }
+
+  .resumen-datos {
+    background: var(--verde-osc); color: white;
+    border-radius: 12px; padding: 14px 18px; margin-bottom: 14px;
+    display: flex; justify-content: space-between;
+    align-items: center; flex-wrap: wrap; gap: 6px;
+  }
+  .resumen-datos .item { font-size: 0.95rem; font-weight: 700; }
+  .resumen-datos .label-r {
+    font-size: 0.72rem; font-weight: 600;
+    opacity: 0.7; text-transform: uppercase; letter-spacing: 0.05em;
+  }
+
+  .ing-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+  .ing-btn {
+    background: white; border: 2.5px solid var(--borde);
+    border-radius: 12px; padding: 18px 10px 14px;
+    text-align: center; cursor: pointer; transition: all 0.18s;
+  }
+  .ing-btn:active { transform: scale(0.96); }
+  .ing-btn.cargado { border-color: var(--verde); background: var(--verde-cla); }
+  .ing-btn .ing-nom { font-size: 0.95rem; font-weight: 700; color: #333; line-height: 1.25; margin-bottom: 8px; }
+  .ing-btn.cargado .ing-nom { color: var(--verde-osc); }
+  .ing-btn .ing-val { font-size: 1.2rem; font-weight: 800; color: #aaa; }
+  .ing-btn.cargado .ing-val { color: var(--verde); }
+  .ing-btn .ing-unid { font-size: 0.75rem; color: #999; margin-top: 2px; }
+  .ing-btn.cargado .ing-unid { color: var(--acento); }
+
+  .btn-guardar {
+    display: block; width: 100%; padding: 20px;
+    background: var(--verde-osc); color: white; border: none;
+    border-radius: 12px; font-size: 1.2rem; font-weight: 800;
+    cursor: pointer; margin-top: 16px; letter-spacing: 0.03em;
+    box-shadow: 0 4px 14px rgba(27,67,50,0.45);
+    transition: background 0.15s, transform 0.1s;
+  }
+  .btn-guardar:active { transform: scale(0.98); }
+  .btn-guardar:disabled { background: #999; box-shadow: none; cursor: not-allowed; }
+
+  .overlay {
+    position: fixed; inset: 0; background: rgba(0,0,0,0.5);
+    z-index: 300; display: none; align-items: flex-end;
+  }
+  .overlay.abierto { display: flex; }
+  .sheet {
+    background: white; width: 100%;
+    border-radius: 20px 20px 0 0;
+    padding: 28px 24px 36px;
+    animation: slideUp 0.3s ease;
+  }
+  @keyframes slideUp { from { transform: translateY(100%); } to { transform: translateY(0); } }
+  .sheet-drag { width: 44px; height: 5px; background: #ddd; border-radius: 3px; margin: 0 auto 22px; }
+  .sheet-nom { font-size: 1.4rem; font-weight: 800; color: var(--verde-osc); text-align: center; margin-bottom: 6px; }
+  .sheet-unid { text-align: center; font-size: 0.9rem; color: #888; margin-bottom: 22px; }
+  .sheet-input {
+    width: 100%; padding: 18px; font-size: 2.4rem; font-weight: 800;
+    text-align: center; border: 3px solid var(--verde); border-radius: 14px;
+    color: var(--verde-osc); background: var(--verde-cla);
+    margin-bottom: 18px; appearance: none; -webkit-appearance: none; -moz-appearance: textfield;
+  }
+  .sheet-input:focus { outline: none; }
+  .sheet-input::-webkit-inner-spin-button,
+  .sheet-input::-webkit-outer-spin-button { -webkit-appearance: none; }
+  .sheet-btns { display: grid; grid-template-columns: 1fr 2fr; gap: 12px; }
+  .btn-cancel { padding: 18px; background: #f0f0f0; border: none; border-radius: 12px; font-size: 1rem; font-weight: 700; color: #555; cursor: pointer; }
+  .btn-ok { padding: 18px; background: var(--verde); border: none; border-radius: 12px; font-size: 1.1rem; font-weight: 800; color: white; cursor: pointer; box-shadow: 0 3px 10px rgba(45,106,79,0.4); }
+  .btn-ok:active { background: var(--verde-osc); }
+  .btn-cancel:active { background: #e0e0e0; }
+
+  .hist-wrap { padding: 16px; max-width: 500px; margin: 0 auto; }
+  .hist-item { background: white; border-radius: 12px; padding: 14px 16px; margin-bottom: 10px; box-shadow: 0 1px 4px rgba(0,0,0,0.08); }
+  .hist-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px; }
+  .hist-fecha { font-weight: 800; font-size: 1rem; color: var(--verde-osc); }
+  .hist-turno { font-size: 0.8rem; font-weight: 700; background: var(--verde-cla); color: var(--verde-osc); padding: 3px 12px; border-radius: 20px; }
+  .hist-cat { font-size: 0.9rem; color: #555; }
+  .hist-kg { font-size: 1.1rem; font-weight: 800; color: var(--verde); margin-top: 4px; }
+
+  #toast {
+    position: fixed; bottom: 28px; left: 50%;
+    transform: translateX(-50%) translateY(120px);
+    background: var(--verde-osc); color: white;
+    padding: 15px 26px; border-radius: 30px;
+    font-size: 1rem; font-weight: 700;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.25);
+    transition: transform 0.35s ease;
+    z-index: 999; max-width: 90%; text-align: center;
+  }
+  #toast.error { background: var(--rojo); }
+  #toast.visible { transform: translateX(-50%) translateY(0); }
+
+  .vacio { text-align: center; padding: 40px 20px; color: #999; font-size: 1rem; }
+
+  .spinner {
+    display: inline-block; width: 20px; height: 20px;
+    border: 3px solid rgba(255,255,255,0.4); border-top-color: white;
+    border-radius: 50%; animation: spin 0.7s linear infinite;
+    vertical-align: middle; margin-right: 8px;
+  }
+  @keyframes spin { to { transform: rotate(360deg); } }
+</style>
+</head>
+<body>
+
+<header>
+  <button class="header-back" id="btn-volver" onclick="volverPaso1()" style="display:none">← Volver</button>
+  <h1 id="header-titulo">🌾 Mixer Carga</h1>
+  <div style="width:80px"></div>
+</header>
+
+<div class="tabs">
+  <div class="tab active" onclick="cambiarTab('carga', this)">➕ Nueva Carga</div>
+  <div class="tab" onclick="cambiarTab('historial', this)">📋 Historial</div>
+</div>
+
+<div id="sec-carga" class="seccion activa">
+  <div id="paso-datos" class="paso activo">
+  <div class="wrap">
+    <div class="card">
+      <div class="card-tit">📅 Fecha</div>
+      <input type="date" id="fecha">
+    </div>
+    <div class="card">
+      <div class="card-tit">🕐 Turno</div>
+      <div class="turno-wrap">
+        <div class="turno-btn" id="btn-M" onclick="selTurno('M')">🌅 Mañana</div>
+        <div class="turno-btn" id="btn-T" onclick="selTurno('T')">🌆 Tarde</div>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-tit">🐄 Categoría</div>
+      <div class="cat-grid" id="cat-grid"></div>
+    </div>
+    <button class="btn-sig" onclick="irPaso2()">Cargar Ingredientes ➜</button>
+  </div>
+  </div>
+  <div id="paso-ingredientes" class="paso">
+  <div class="wrap">
+    <div class="resumen-datos" id="resumen-datos"></div>
+    <div class="card">
+      <div class="card-tit">⚖️ Tocá cada ingrediente para cargar los kg</div>
+      <div class="ing-grid" id="ing-grid"></div>
+    </div>
+    <button class="btn-guardar" id="btn-guardar" onclick="guardar()">💾 Guardar Registro</button>
+  </div>
+  </div>
+</div>
+
+<div id="sec-historial" class="seccion">
+<div class="hist-wrap">
+  <div id="lista-historial"><div class="vacio">Cargando historial...</div></div>
+</div>
+</div>
+
+<div class="overlay" id="overlay" onclick="cerrarSheet(event)">
+  <div class="sheet">
+    <div class="sheet-drag"></div>
+    <div class="sheet-nom" id="sheet-nom"></div>
+    <div class="sheet-unid" id="sheet-unid"></div>
+    <input type="number" class="sheet-input" id="sheet-input" inputmode="decimal" min="0" step="0.1" placeholder="0">
+    <div class="sheet-btns">
+      <button class="btn-cancel" onclick="cerrarSheetBtn()">Cancelar</button>
+      <button class="btn-ok" onclick="confirmarKg()">✓ Listo</button>
+    </div>
+  </div>
+</div>
+
+<div id="toast"></div>
+
+<script>
+  var SCRIPT_URL = "PEGAR_URL_DE_APPS_SCRIPT_AQUI";
+
+  var turnoSel = "", categoriaSel = "", ingredientes = [], kgCargados = {}, ingActivo = null;
+
+  var CATEGORIAS = ["Punta","Cola","Seca","Preparto","Recría 1","Recría 2 H","Recría 2 M","Recría 3","Recría 4","Guachera","Acostumbramiento","Coloradas"];
+  var INGREDIENTES_DEFAULT = ["Silo Sorgo","Silo AA","Silo Mz","Mz entero","Expeller/harina","Núcleo","Sales anión.","Mz molido","Rollos (unidades)"];
+
+  window.onload = function() {
+    var hoy = new Date();
+    document.getElementById("fecha").value = hoy.getFullYear()+"-"+String(hoy.getMonth()+1).padStart(2,"0")+"-"+String(hoy.getDate()).padStart(2,"0");
+    renderCategorias();
+    cargarIngredientes();
+  };
+
+  function cargarIngredientes() {
+    if (!SCRIPT_URL || SCRIPT_URL.includes("PEGAR")) { iniciarConIngredientes(INGREDIENTES_DEFAULT); return; }
+    fetch(SCRIPT_URL+"?action=ingredientes").then(function(r){return r.json();}).then(function(res){iniciarConIngredientes(res.data||INGREDIENTES_DEFAULT);}).catch(function(){iniciarConIngredientes(INGREDIENTES_DEFAULT);});
+  }
+  function iniciarConIngredientes(ings) { ingredientes=ings; ingredientes.forEach(function(ing){kgCargados[ing]=0;}); }
+
+  function renderCategorias() {
+    var html="";
+    CATEGORIAS.forEach(function(cat){var id="cat_"+cat.replace(/[^a-zA-Z0-9]/g,"_");html+='<div class="cat-btn" id="'+id+'" onclick="selCategoria(''+cat.replace(/'/g,"\'")+'')">'+cat+'</div>';});
+    document.getElementById("cat-grid").innerHTML=html;
+  }
+  function selCategoria(cat){categoriaSel=cat;document.querySelectorAll(".cat-btn").forEach(function(b){b.classList.remove("sel");});document.getElementById("cat_"+cat.replace(/[^a-zA-Z0-9]/g,"_")).classList.add("sel");}
+  function selTurno(t){turnoSel=t;document.getElementById("btn-M").classList.toggle("sel",t==="M");document.getElementById("btn-T").classList.toggle("sel",t==="T");}
+
+  function cambiarTab(tab,el){document.querySelectorAll(".seccion").forEach(function(s){s.classList.remove("activa");});document.querySelectorAll(".tab").forEach(function(t){t.classList.remove("active");});document.getElementById("sec-"+tab).classList.add("activa");el.classList.add("active");if(tab==="historial")cargarHistorial();volverPaso1();}
+
+  function irPaso2(){
+    if(!document.getElementById("fecha").value){mostrarToast("⚠️ Ingresá la fecha",true);return;}
+    if(!turnoSel){mostrarToast("⚠️ Seleccioná el turno",true);return;}
+    if(!categoriaSel){mostrarToast("⚠️ Seleccioná la categoría",true);return;}
+    if(!ingredientes.length){mostrarToast("⚠️ Espera un momento...",true);return;}
+    var f=document.getElementById("fecha").value.split("-");
+    document.getElementById("resumen-datos").innerHTML='<div><div class="label-r">Fecha</div><div class="item">📅 '+f[2]+"/"+f[1]+"/"+f[0]+'</div></div><div><div class="label-r">Turno</div><div class="item">'+(turnoSel==="M"?"🌅 Mañana":"🌆 Tarde")+'</div></div><div style="flex-basis:100%"><div class="label-r">Categoría</div><div class="item">🐄 '+categoriaSel+'</div></div>';
+    renderIngGrid();
+    document.getElementById("paso-datos").classList.remove("activo");
+    document.getElementById("paso-ingredientes").classList.add("activo");
+    document.getElementById("btn-volver").style.display="block";
+    document.getElementById("header-titulo").textContent="⚖️ Ingredientes";
+    window.scrollTo(0,0);
+  }
+  function volverPaso1(){document.getElementById("paso-ingredientes").classList.remove("activo");document.getElementById("paso-datos").classList.add("activo");document.getElementById("btn-volver").style.display="none";document.getElementById("header-titulo").textContent="🌾 Mixer Carga";}
+
+  function renderIngGrid(){var html="";ingredientes.forEach(function(ing,i){var esRollos=ing.toLowerCase().includes("rollo");var val=kgCargados[ing]||0;html+='<div class="ing-btn'+(val>0?" cargado":"")+'" id="ingbtn_'+i+'" onclick="abrirSheet('+i+')"><div class="ing-nom">'+ing+'</div><div class="ing-val">'+(val>0?val.toLocaleString("es-AR"):"—")+'</div><div class="ing-unid">'+(esRollos?"unidades":"kg")+'</div></div>';});document.getElementById("ing-grid").innerHTML=html;}
+  function actualizarIngBtn(i){var ing=ingredientes[i];var val=kgCargados[ing]||0;var btn=document.getElementById("ingbtn_"+i);if(!btn)return;btn.className="ing-btn"+(val>0?" cargado":"");btn.querySelector(".ing-val").textContent=val>0?val.toLocaleString("es-AR"):"—";btn.querySelector(".ing-unid").textContent=ing.toLowerCase().includes("rollo")?"unidades":"kg";}
+
+  function abrirSheet(i){ingActivo=i;var ing=ingredientes[i];var esRollos=ing.toLowerCase().includes("rollo");document.getElementById("sheet-nom").textContent=ing;document.getElementById("sheet-unid").textContent=esRollos?"Cantidad en unidades":"Cantidad en kg";var inp=document.getElementById("sheet-input");inp.step=esRollos?"1":"0.1";inp.value=kgCargados[ing]>0?kgCargados[ing]:"";document.getElementById("overlay").classList.add("abierto");setTimeout(function(){inp.focus();},200);}
+  function cerrarSheet(e){if(e.target===document.getElementById("overlay"))cerrarSheetBtn();}
+  function cerrarSheetBtn(){document.getElementById("overlay").classList.remove("abierto");document.getElementById("sheet-input").blur();ingActivo=null;}
+  function confirmarKg(){if(ingActivo===null)return;var val=parseFloat(document.getElementById("sheet-input").value)||0;kgCargados[ingredientes[ingActivo]]=val;actualizarIngBtn(ingActivo);cerrarSheetBtn();if(val>0)mostrarToast("✓ "+ingredientes[ingActivo]+": "+val.toLocaleString("es-AR"));}
+
+  function guardar(){
+    if(!SCRIPT_URL||SCRIPT_URL.includes("PEGAR")){mostrarToast("⚠️ Falta configurar la URL del servidor",true);return;}
+    var datos={fecha:document.getElementById("fecha").value,turno:turnoSel==="M"?"Mañana":"Tarde",categoria:categoriaSel,ingredientes:kgCargados};
+    var btn=document.getElementById("btn-guardar");btn.disabled=true;btn.innerHTML='<span class="spinner"></span>Guardando...';
+    fetch(SCRIPT_URL,{method:"POST",redirect:"follow",headers:{"Content-Type":"application/json"},body:JSON.stringify({action:"guardar",datos:datos})})
+    .then(function(r){return r.json();}).then(function(res){btn.disabled=false;btn.innerHTML="💾 Guardar Registro";if(res.ok){mostrarToast("✓ Registro guardado correctamente");limpiar();}else mostrarToast("❌ "+res.mensaje,true);})
+    .catch(function(){btn.disabled=false;btn.innerHTML="💾 Guardar Registro";mostrarToast("❌ Error de conexión. Intentá de nuevo.",true);});
+  }
+
+  function limpiar(){turnoSel="";categoriaSel="";ingredientes.forEach(function(ing){kgCargados[ing]=0;});document.getElementById("btn-M").classList.remove("sel");document.getElementById("btn-T").classList.remove("sel");document.querySelectorAll(".cat-btn").forEach(function(b){b.classList.remove("sel");});volverPaso1();}
+
+  function cargarHistorial(){
+    document.getElementById("lista-historial").innerHTML='<div class="vacio">Cargando...</div>';
+    if(!SCRIPT_URL||SCRIPT_URL.includes("PEGAR")){document.getElementById("lista-historial").innerHTML='<div class="vacio">Configurá la URL del servidor para ver el historial.</div>';return;}
+    fetch(SCRIPT_URL+"?action=historial").then(function(r){return r.json();}).then(function(res){var datos=res.data||[];if(!datos.length){document.getElementById("lista-historial").innerHTML='<div class="vacio">Todavía no hay registros.</div>';return;}var html="";datos.forEach(function(r){var kg=typeof r.kgTotales==="number"?r.kgTotales.toLocaleString("es-AR",{maximumFractionDigits:0})+" kg":"";html+='<div class="hist-item"><div class="hist-header"><span class="hist-fecha">📅 '+r.fecha+'</span><span class="hist-turno">'+r.turno+'</span></div><div class="hist-cat">🐄 <b>'+r.categoria+'</b></div>'+(kg?'<div class="hist-kg">⚖️ '+kg+' totales</div>':'')+' </div>';});document.getElementById("lista-historial").innerHTML=html;}).catch(function(){document.getElementById("lista-historial").innerHTML='<div class="vacio">No se pudo cargar el historial.</div>';});
+  }
+
+  function mostrarToast(msg,esError){var t=document.getElementById("toast");t.textContent=msg;t.className=(esError?"error":"")+" visible";clearTimeout(t._timer);t._timer=setTimeout(function(){t.className=esError?"error":"";},3000);}
+</script>
+</body>
+    </html>
