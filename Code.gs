@@ -5,7 +5,7 @@
 // ============================================================
 
 // Pegá acá el ID de tu Google Sheet (está en la URL de la planilla)
-var SPREADSHEET_ID = "PEGAR_ID_DE_TU_GOOGLE_SHEET_AQUI";
+var SPREADSHEET_ID = "https://docs.google.com/spreadsheets/d/1lAsskZAOw3heC_K8fYYXatWwedsaPQnT8F_DLAQGPNs/edit?gid=0#gid=0";
 
 var SHEET_REGISTROS = "Registros";
 var SHEET_RESUMEN   = "Resumen Mensual";
