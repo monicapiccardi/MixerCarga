@@ -5,96 +5,87 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
 <title>Mixer Carga</title>
 <style>
-  :root {
-    --verde:     #2d6a4f;
-    --verde-osc: #1b4332;
-    --verde-cla: #d8f3dc;
-    --acento:    #52b788;
-    --borde:     #ddd;
-    --texto:     #1a1a1a;
-    --rojo:      #c0392b;
-    --gris-bg:   #f0f4f1;
-  }
-  * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
-  body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; background: var(--gris-bg); color: var(--texto); min-height: 100vh; font-size: 16px; }
-  .pantalla { display: none; min-height: 100vh; flex-direction: column; }
-  .pantalla.activa { display: flex; }
-  .header { background: var(--verde-osc); color: white; padding: 14px 16px; display: flex; align-items: center; justify-content: space-between; position: sticky; top: 0; z-index: 200; box-shadow: 0 2px 10px rgba(0,0,0,0.3); flex-shrink: 0; }
-  .header-sub { font-size: 0.75rem; opacity: 0.75; margin-top: 1px; }
-  .btn-volver { background: rgba(255,255,255,0.15); border: none; color: white; font-size: 1rem; font-weight: 700; padding: 9px 16px; border-radius: 8px; cursor: pointer; white-space: nowrap; }
-  .header-spacer { width: 80px; }
-  .tabs { display: flex; background: var(--verde); flex-shrink: 0; }
-  .tab { flex: 1; padding: 14px 8px; text-align: center; color: rgba(255,255,255,0.6); font-size: 0.95rem; font-weight: 700; cursor: pointer; border-bottom: 3px solid transparent; transition: all 0.2s; user-select: none; }
-  .tab.active { color: white; border-bottom-color: #b7e4c7; background: rgba(255,255,255,0.1); }
-  .scroll { flex: 1; overflow-y: auto; }
-  .wrap { padding: 16px; max-width: 520px; margin: 0 auto; padding-bottom: 36px; }
-  .card { background: white; border-radius: 14px; padding: 20px; margin-bottom: 14px; box-shadow: 0 1px 6px rgba(0,0,0,0.08); }
-  .card-tit { font-size: 0.7rem; font-weight: 800; text-transform: uppercase; letter-spacing: 0.08em; color: var(--verde); margin-bottom: 14px; }
-  #p-login { background: var(--verde-osc); justify-content: center; align-items: center; padding: 24px; }
-  .login-logo { font-size: 4rem; margin-bottom: 12px; text-align: center; }
-  .login-titulo { color: white; font-size: 1.8rem; font-weight: 800; text-align: center; margin-bottom: 4px; }
-  .login-sub { color: rgba(255,255,255,0.65); font-size: 1rem; text-align: center; margin-bottom: 32px; }
-  .login-card { background: white; border-radius: 18px; padding: 24px; width: 100%; max-width: 400px; box-shadow: 0 8px 40px rgba(0,0,0,0.3); }
-  .login-label { font-size: 1rem; font-weight: 700; color: #555; margin-bottom: 10px; display: block; }
-  .login-input { flex: 1; padding: 16px 14px; border: 2px solid var(--borde); border-radius: 10px; font-size: 1.15rem; font-weight: 600; color: var(--texto); background: white; }
-  .login-input:focus { outline: none; border-color: var(--verde); }
-  .login-usuarios { display: flex; flex-direction: column; gap: 10px; margin-bottom: 18px; }
-  .usuario-btn { padding: 16px 18px; border: 2px solid var(--borde); border-radius: 12px; font-size: 1.1rem; font-weight: 700; cursor: pointer; background: var(--gris-bg); color: var(--texto); text-align: left; display: flex; align-items: center; gap: 12px; transition: all 0.18s; }
-  .usuario-btn .avatar { width: 42px; height: 42px; border-radius: 50%; background: var(--verde); color: white; font-size: 1.1rem; font-weight: 800; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
-  .usuario-eliminar { margin-left: auto; background: none; border: none; color: #bbb; font-size: 1.1rem; cursor: pointer; padding: 4px 8px; }
-  .btn-agregar-usuario { width: 100%; padding: 14px; border: 2px dashed var(--borde); border-radius: 12px; font-size: 1rem; font-weight: 700; color: var(--verde); background: white; cursor: pointer; margin-bottom: 18px; }
-  .btn-entrar { display: block; width: 100%; padding: 18px; background: var(--verde); color: white; border: none; border-radius: 12px; font-size: 1.15rem; font-weight: 800; cursor: pointer; box-shadow: 0 4px 14px rgba(45,106,79,0.4); }
-  .add-form { display: none; gap: 10px; margin-bottom: 14px; }
-  .add-form.visible { display: flex; }
-  input[type="date"] { width: 100%; padding: 18px 14px; border: 2.5px solid var(--verde); border-radius: 12px; font-size: 1.6rem; font-weight: 800; color: var(--verde-osc); background: white; appearance: none; -webkit-appearance: none; letter-spacing: 0.02em; }
-  input[type="date"]:focus { outline: none; border-color: var(--acento); }
-  .turno-wrap { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
-  .turno-btn { padding: 22px 10px; text-align: center; border: 2.5px solid var(--borde); border-radius: 14px; font-size: 1.25rem; font-weight: 800; cursor: pointer; background: white; color: #555; transition: all 0.18s; user-select: none; }
-  .turno-btn.sel { border-color: var(--verde); background: var(--verde-cla); color: var(--verde-osc); }
-  .cat-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
-  .cat-btn { padding: 20px 10px; text-align: center; border: 2.5px solid var(--borde); border-radius: 14px; font-size: 1.05rem; font-weight: 700; cursor: pointer; background: white; color: #444; transition: all 0.18s; line-height: 1.3; user-select: none; }
-  .cat-btn.sel { border-color: var(--verde); background: var(--verde-cla); color: var(--verde-osc); }
-  .btn-sig { display: block; width: 100%; padding: 22px; background: var(--verde); color: white; border: none; border-radius: 14px; font-size: 1.25rem; font-weight: 800; cursor: pointer; margin-top: 4px; box-shadow: 0 4px 14px rgba(45,106,79,0.4); }
-  .resumen { background: var(--verde-osc); color: white; border-radius: 14px; padding: 16px 18px; margin-bottom: 14px; display: flex; flex-wrap: wrap; gap: 8px 20px; align-items: center; }
-  .resumen-item .lbl { font-size: 0.65rem; font-weight: 700; opacity: 0.65; text-transform: uppercase; letter-spacing: 0.06em; }
-  .resumen-item .val { font-size: 1rem; font-weight: 800; }
-  .ing-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
-  .ing-btn { background: white; border: 2.5px solid var(--borde); border-radius: 14px; padding: 18px 10px 14px; text-align: center; cursor: pointer; transition: all 0.18s; user-select: none; }
-  .ing-btn.cargado { border-color: var(--verde); background: var(--verde-cla); }
-  .ing-nom { font-size: 0.95rem; font-weight: 700; color: #333; line-height: 1.25; margin-bottom: 10px; }
-  .ing-btn.cargado .ing-nom { color: var(--verde-osc); }
-  .ing-val { font-size: 1.3rem; font-weight: 800; color: #bbb; }
-  .ing-btn.cargado .ing-val { color: var(--verde); }
-  .ing-unid { font-size: 0.72rem; color: #aaa; margin-top: 3px; }
-  .ing-btn.cargado .ing-unid { color: var(--acento); }
-  .btn-guardar { display: block; width: 100%; padding: 22px; background: var(--verde-osc); color: white; border: none; border-radius: 14px; font-size: 1.2rem; font-weight: 800; cursor: pointer; margin-top: 16px; box-shadow: 0 4px 16px rgba(27,67,50,0.45); }
-  .btn-guardar:disabled { background: #aaa; box-shadow: none; cursor: not-allowed; }
-  .overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.55); z-index: 400; display: none; align-items: flex-end; }
-  .overlay.abierto { display: flex; }
-  .sheet { background: white; width: 100%; max-width: 520px; margin: 0 auto; border-radius: 22px 22px 0 0; padding: 26px 24px 40px; animation: slideUp 0.28s ease; }
-  @keyframes slideUp { from { transform: translateY(100%); } to { transform: translateY(0); } }
-  .sheet-drag { width: 44px; height: 5px; background: #ddd; border-radius: 3px; margin: 0 auto 20px; }
-  .sheet-nom { font-size: 1.5rem; font-weight: 800; color: var(--verde-osc); text-align: center; margin-bottom: 4px; }
-  .sheet-unid { text-align: center; font-size: 0.9rem; color: #888; margin-bottom: 20px; }
-  .sheet-input { width: 100%; padding: 20px; font-size: 2.8rem; font-weight: 800; text-align: center; border: 3px solid var(--verde); border-radius: 16px; color: var(--verde-osc); background: var(--verde-cla); margin-bottom: 18px; -moz-appearance: textfield; }
-  .sheet-input:focus { outline: none; }
-  .sheet-input::-webkit-inner-spin-button, .sheet-input::-webkit-outer-spin-button { -webkit-appearance: none; }
-  .sheet-btns { display: grid; grid-template-columns: 1fr 2fr; gap: 12px; }
-  .btn-cancel { padding: 18px; background: #f0f0f0; border: none; border-radius: 12px; font-size: 1rem; font-weight: 700; color: #555; cursor: pointer; }
-  .btn-ok { padding: 18px; background: var(--verde); border: none; border-radius: 12px; font-size: 1.15rem; font-weight: 800; color: white; cursor: pointer; }
-  .hist-item { background: white; border-radius: 14px; padding: 16px 18px; margin-bottom: 12px; box-shadow: 0 1px 5px rgba(0,0,0,0.08); }
-  .hist-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 8px; }
-  .hist-fecha { font-weight: 800; font-size: 1.05rem; color: var(--verde-osc); }
-  .hist-turno { font-size: 0.78rem; font-weight: 700; background: var(--verde-cla); color: var(--verde-osc); padding: 4px 12px; border-radius: 20px; }
-  .hist-operario { font-size: 0.85rem; color: #666; margin-bottom: 4px; }
-  .hist-cat { font-size: 0.95rem; color: #444; font-weight: 600; }
-  .hist-kg { font-size: 1.15rem; font-weight: 800; color: var(--verde); margin-top: 6px; }
-  #toast { position: fixed; bottom: 30px; left: 50%; transform: translateX(-50%) translateY(130px); background: var(--verde-osc); color: white; padding: 16px 28px; border-radius: 30px; font-size: 1rem; font-weight: 700; box-shadow: 0 4px 24px rgba(0,0,0,0.25); transition: transform 0.3s ease; z-index: 999; max-width: 90%; text-align: center; }
-  #toast.error { background: var(--rojo); }
-  #toast.visible { transform: translateX(-50%) translateY(0); }
-  .vacio { text-align: center; padding: 48px 20px; color: #aaa; font-size: 1rem; }
-  .spinner { display: inline-block; width: 20px; height: 20px; border: 3px solid rgba(255,255,255,0.4); border-top-color: white; border-radius: 50%; animation: spin 0.7s linear infinite; vertical-align: middle; margin-right: 8px; }
-  @keyframes spin { to { transform: rotate(360deg); } }
+  :root { --verde:#2d6a4f; --verde-osc:#1b4332; --verde-cla:#d8f3dc; --acento:#52b788; --borde:#ddd; --texto:#1a1a1a; --rojo:#c0392b; --gris-bg:#f0f4f1; }
+  * { box-sizing:border-box; margin:0; padding:0; -webkit-tap-highlight-color:transparent; }
+  body { font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif; background:var(--gris-bg); color:var(--texto); min-height:100vh; font-size:16px; }
+  .pantalla { display:none; min-height:100vh; flex-direction:column; }
+  .pantalla.activa { display:flex; }
+  .header { background:var(--verde-osc); color:white; padding:14px 16px; display:flex; align-items:center; justify-content:space-between; position:sticky; top:0; z-index:200; box-shadow:0 2px 10px rgba(0,0,0,0.3); flex-shrink:0; }
+  .header-sub { font-size:0.75rem; opacity:0.75; margin-top:1px; }
+  .btn-volver { background:rgba(255,255,255,0.15); border:none; color:white; font-size:1rem; font-weight:700; padding:9px 16px; border-radius:8px; cursor:pointer; white-space:nowrap; }
+  .header-spacer { width:80px; }
+  .tabs { display:flex; background:var(--verde); flex-shrink:0; }
+  .tab { flex:1; padding:14px 8px; text-align:center; color:rgba(255,255,255,0.6); font-size:0.95rem; font-weight:700; cursor:pointer; border-bottom:3px solid transparent; user-select:none; }
+  .tab.active { color:white; border-bottom-color:#b7e4c7; background:rgba(255,255,255,0.1); }
+  .scroll { flex:1; overflow-y:auto; }
+  .wrap { padding:16px; max-width:520px; margin:0 auto; padding-bottom:36px; }
+  .card { background:white; border-radius:14px; padding:20px; margin-bottom:14px; box-shadow:0 1px 6px rgba(0,0,0,0.08); }
+  .card-tit { font-size:0.7rem; font-weight:800; text-transform:uppercase; letter-spacing:0.08em; color:var(--verde); margin-bottom:14px; }
+  #p-login { background:var(--verde-osc); justify-content:center; align-items:center; padding:24px; }
+  .login-logo { font-size:4rem; margin-bottom:12px; text-align:center; }
+  .login-titulo { color:white; font-size:1.8rem; font-weight:800; text-align:center; margin-bottom:4px; }
+  .login-sub { color:rgba(255,255,255,0.65); font-size:1rem; text-align:center; margin-bottom:32px; }
+  .login-card { background:white; border-radius:18px; padding:24px; width:100%; max-width:400px; box-shadow:0 8px 40px rgba(0,0,0,0.3); }
+  .login-label { font-size:1rem; font-weight:700; color:#555; margin-bottom:10px; display:block; }
+  .login-input { flex:1; padding:16px 14px; border:2px solid var(--borde); border-radius:10px; font-size:1.15rem; font-weight:600; color:var(--texto); background:white; }
+  .login-input:focus { outline:none; border-color:var(--verde); }
+  .login-usuarios { display:flex; flex-direction:column; gap:10px; margin-bottom:18px; }
+  .usuario-btn { padding:16px 18px; border:2px solid var(--borde); border-radius:12px; font-size:1.1rem; font-weight:700; cursor:pointer; background:var(--gris-bg); color:var(--texto); text-align:left; display:flex; align-items:center; gap:12px; }
+  .usuario-btn .avatar { width:42px; height:42px; border-radius:50%; background:var(--verde); color:white; font-size:1.1rem; font-weight:800; display:flex; align-items:center; justify-content:center; flex-shrink:0; }
+  .usuario-eliminar { margin-left:auto; background:none; border:none; color:#bbb; font-size:1.1rem; cursor:pointer; padding:4px 8px; }
+  .btn-agregar-usuario { width:100%; padding:14px; border:2px dashed var(--borde); border-radius:12px; font-size:1rem; font-weight:700; color:var(--verde); background:white; cursor:pointer; margin-bottom:18px; }
+  .btn-entrar { display:block; width:100%; padding:18px; background:var(--verde); color:white; border:none; border-radius:12px; font-size:1.15rem; font-weight:800; cursor:pointer; box-shadow:0 4px 14px rgba(45,106,79,0.4); }
+  .add-form { display:none; gap:10px; margin-bottom:14px; }
+  .add-form.visible { display:flex; }
+  input[type="date"] { width:100%; padding:18px 14px; border:2.5px solid var(--verde); border-radius:12px; font-size:1.6rem; font-weight:800; color:var(--verde-osc); background:white; appearance:none; -webkit-appearance:none; }
+  input[type="date"]:focus { outline:none; border-color:var(--acento); }
+  .turno-wrap { display:grid; grid-template-columns:1fr 1fr; gap:12px; }
+  .turno-btn { padding:22px 10px; text-align:center; border:2.5px solid var(--borde); border-radius:14px; font-size:1.25rem; font-weight:800; cursor:pointer; background:white; color:#555; user-select:none; }
+  .turno-btn.sel { border-color:var(--verde); background:var(--verde-cla); color:var(--verde-osc); }
+  .cat-grid { display:grid; grid-template-columns:1fr 1fr; gap:10px; }
+  .cat-btn { padding:20px 10px; text-align:center; border:2.5px solid var(--borde); border-radius:14px; font-size:1.05rem; font-weight:700; cursor:pointer; background:white; color:#444; line-height:1.3; user-select:none; }
+  .cat-btn.sel { border-color:var(--verde); background:var(--verde-cla); color:var(--verde-osc); }
+  .btn-sig { display:block; width:100%; padding:22px; background:var(--verde); color:white; border:none; border-radius:14px; font-size:1.25rem; font-weight:800; cursor:pointer; margin-top:4px; box-shadow:0 4px 14px rgba(45,106,79,0.4); }
+  .resumen { background:var(--verde-osc); color:white; border-radius:14px; padding:16px 18px; margin-bottom:14px; display:flex; flex-wrap:wrap; gap:8px 20px; align-items:center; }
+  .resumen-item .lbl { font-size:0.65rem; font-weight:700; opacity:0.65; text-transform:uppercase; letter-spacing:0.06em; }
+  .resumen-item .val { font-size:1rem; font-weight:800; }
+  .ing-grid { display:grid; grid-template-columns:1fr 1fr; gap:12px; }
+  .ing-btn { background:white; border:2.5px solid var(--borde); border-radius:14px; padding:18px 10px 14px; text-align:center; cursor:pointer; user-select:none; }
+  .ing-btn.cargado { border-color:var(--verde); background:var(--verde-cla); }
+  .ing-nom { font-size:0.95rem; font-weight:700; color:#333; line-height:1.25; margin-bottom:10px; }
+  .ing-btn.cargado .ing-nom { color:var(--verde-osc); }
+  .ing-val { font-size:1.3rem; font-weight:800; color:#bbb; }
+  .ing-btn.cargado .ing-val { color:var(--verde); }
+  .ing-unid { font-size:0.72rem; color:#aaa; margin-top:3px; }
+  .ing-btn.cargado .ing-unid { color:var(--acento); }
+  .btn-guardar { display:block; width:100%; padding:22px; background:var(--verde-osc); color:white; border:none; border-radius:14px; font-size:1.2rem; font-weight:800; cursor:pointer; margin-top:16px; box-shadow:0 4px 16px rgba(27,67,50,0.45); }
+  .btn-guardar:disabled { background:#aaa; box-shadow:none; cursor:not-allowed; }
+  .overlay { position:fixed; inset:0; background:rgba(0,0,0,0.55); z-index:400; display:none; align-items:flex-end; }
+  .overlay.abierto { display:flex; }
+  .sheet { background:white; width:100%; max-width:520px; margin:0 auto; border-radius:22px 22px 0 0; padding:26px 24px 40px; animation:slideUp 0.28s ease; }
+  @keyframes slideUp { from{transform:translateY(100%)} to{transform:translateY(0)} }
+  .sheet-drag { width:44px; height:5px; background:#ddd; border-radius:3px; margin:0 auto 20px; }
+  .sheet-nom { font-size:1.5rem; font-weight:800; color:var(--verde-osc); text-align:center; margin-bottom:4px; }
+  .sheet-unid { text-align:center; font-size:0.9rem; color:#888; margin-bottom:20px; }
+  .sheet-input { width:100%; padding:20px; font-size:2.8rem; font-weight:800; text-align:center; border:3px solid var(--verde); border-radius:16px; color:var(--verde-osc); background:var(--verde-cla); margin-bottom:18px; -moz-appearance:textfield; }
+  .sheet-input:focus { outline:none; }
+  .sheet-input::-webkit-inner-spin-button,.sheet-input::-webkit-outer-spin-button { -webkit-appearance:none; }
+  .sheet-btns { display:grid; grid-template-columns:1fr 2fr; gap:12px; }
+  .btn-cancel { padding:18px; background:#f0f0f0; border:none; border-radius:12px; font-size:1rem; font-weight:700; color:#555; cursor:pointer; }
+  .btn-ok { padding:18px; background:var(--verde); border:none; border-radius:12px; font-size:1.15rem; font-weight:800; color:white; cursor:pointer; }
+  .hist-item { background:white; border-radius:14px; padding:16px 18px; margin-bottom:12px; box-shadow:0 1px 5px rgba(0,0,0,0.08); }
+  .hist-header { display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:8px; }
+  .hist-fecha { font-weight:800; font-size:1.05rem; color:var(--verde-osc); }
+  .hist-turno { font-size:0.78rem; font-weight:700; background:var(--verde-cla); color:var(--verde-osc); padding:4px 12px; border-radius:20px; }
+  .hist-operario { font-size:0.85rem; color:#666; margin-bottom:4px; }
+  .hist-cat { font-size:0.95rem; color:#444; font-weight:600; }
+  .hist-kg { font-size:1.15rem; font-weight:800; color:var(--verde); margin-top:6px; }
+  #toast { position:fixed; bottom:30px; left:50%; transform:translateX(-50%) translateY(130px); background:var(--verde-osc); color:white; padding:16px 28px; border-radius:30px; font-size:1rem; font-weight:700; box-shadow:0 4px 24px rgba(0,0,0,0.25); transition:transform 0.3s ease; z-index:999; max-width:90%; text-align:center; }
+  #toast.error { background:var(--rojo); }
+  #toast.visible { transform:translateX(-50%) translateY(0); }
+  .vacio { text-align:center; padding:48px 20px; color:#aaa; font-size:1rem; }
+  .spinner { display:inline-block; width:20px; height:20px; border:3px solid rgba(255,255,255,0.4); border-top-color:white; border-radius:50%; animation:spin 0.7s linear infinite; vertical-align:middle; margin-right:8px; }
+  @keyframes spin { to{transform:rotate(360deg)} }
 </style>
 </head>
 <body>
@@ -102,7 +93,7 @@
 <div class="pantalla activa" id="p-login">
   <div class="login-logo">🌾</div>
   <div class="login-titulo">Mixer Carga</div>
-  <div class="login-sub">Seleccioná o aglegá tu nombre</div>
+  <div class="login-sub">Seleccioná o agregá tu nombre</div>
   <div class="login-card">
     <span class="login-label">👤 ¿Quién carga hoy?</span>
     <div class="login-usuarios" id="lista-usuarios"></div>
@@ -118,10 +109,7 @@
 <div class="pantalla" id="p-datos">
   <div class="header">
     <div class="header-spacer"></div>
-    <div style="text-align:center">
-      <div style="font-size:1.1rem;font-weight:800">🌾 Mixer Carga</div>
-      <div class="header-sub" id="header-usuario-datos"></div>
-    </div>
+    <div style="text-align:center"><div style="font-size:1.1rem;font-weight:800">🌾 Mixer Carga</div><div class="header-sub" id="header-usuario-datos"></div></div>
     <button class="btn-volver" onclick="irLogin()" style="font-size:0.85rem;padding:8px 12px">Salir</button>
   </div>
   <div class="tabs">
@@ -134,8 +122,7 @@
       <div class="turno-wrap">
         <div class="turno-btn" id="btn-M" onclick="selTurno('M')">🌅 Mañana</div>
         <div class="turno-btn" id="btn-T" onclick="selTurno('T')">🌆 Tarde</div>
-      </div>
-    </div>
+      </div></div>
     <div class="card"><div class="card-tit">🐄 Categoría</div><div class="cat-grid" id="cat-grid"></div></div>
     <button class="btn-sig" onclick="irIngredientes()">Cargar Ingredientes ➜</button>
   </div></div>
@@ -147,10 +134,7 @@
 <div class="pantalla" id="p-ingredientes">
   <div class="header">
     <button class="btn-volver" onclick="volverDatos()">← Volver</button>
-    <div style="text-align:center">
-      <div style="font-size:1.1rem;font-weight:800;color:white">⚖️ Ingredientes</div>
-      <div class="header-sub" id="header-usuario-ing"></div>
-    </div>
+    <div style="text-align:center"><div style="font-size:1.1rem;font-weight:800;color:white">⚖️ Ingredientes</div><div class="header-sub" id="header-usuario-ing"></div></div>
     <div class="header-spacer"></div>
   </div>
   <div class="scroll"><div class="wrap">
@@ -175,7 +159,7 @@
 <div id="toast"></div>
 
 <script>
-var SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwfWLrqEDIbYny8qmRB0O51JwDZogYeoSE_aET5KI6OHNXYuF8h0-AuHbKhaQNiJWA/exec";
+var SCRIPT_URL="https://script.google.com/macros/s/AKfycbwfWLrqEDIbYny8qmRB0O51JwDZogYeoSE_aET5KI6OHNXYuF8h0-AuHbKhaQNiJWA/exec";
 var usuarioActual="",turnoSel="",categoriaSel="",ingredientes=[],kgCargados={},ingActivo=null;
 var CATEGORIAS=["Punta","Cola","Seca","Preparto","Recría 1","Recría 2 H","Recría 2 M","Recría 3","Recría 4","Guachera","Acostumbramiento","Coloradas"];
 var INGREDIENTES_DEFAULT=["Silo Sorgo","Silo AA","Silo Mz","Mz entero","Expeller/harina","Núcleo","Sales anión.","Mz molido","Rollos (unidades)"];
@@ -189,16 +173,16 @@ function eliminarUsuario(e,i){e.stopPropagation();var u=getUsuarios();u.splice(i
 function mostrarAddForm(){var f=document.getElementById("add-form");f.classList.toggle("visible");if(f.classList.contains("visible"))document.getElementById("nuevo-nombre").focus();}
 function confirmarNuevo(){var n=document.getElementById("nuevo-nombre").value.trim();if(!n)return;var u=getUsuarios();if(!u.includes(n)){u.push(n);saveUsuarios(u);}document.getElementById("nuevo-nombre").value="";document.getElementById("add-form").classList.remove("visible");renderUsuarios();var idx=getUsuarios().indexOf(n);if(idx>=0)selUsuario(idx);}
 document.addEventListener("DOMContentLoaded",function(){var inp=document.getElementById("nuevo-nombre");if(inp)inp.addEventListener("keydown",function(e){if(e.key==="Enter")confirmarNuevo();});});
-function entrar(){if(!usuarioActual){mostrarToast("⚠️ Selecioná tu nombre",true);return;}document.getElementById("header-usuario-datos").textContent="👤 "+usuarioActual;document.getElementById("header-usuario-ing").textContent="👤 "+usuarioActual;mostrarPantalla("p-datos");}
+function entrar(){if(!usuarioActual){mostrarToast("⚠️ Seleccioná tu nombre",true);return;}document.getElementById("header-usuario-datos").textContent="👤 "+usuarioActual;document.getElementById("header-usuario-ing").textContent="👤 "+usuarioActual;mostrarPantalla("p-datos");}
 function irLogin(){usuarioActual="";turnoSel="";categoriaSel="";document.querySelectorAll(".usuario-btn").forEach(function(b){b.classList.remove("sel-user");b.style.borderColor="";b.style.background="";});document.getElementById("btn-entrar").style.display="none";mostrarPantalla("p-login");}
 function mostrarPantalla(id){document.querySelectorAll(".pantalla").forEach(function(p){p.classList.remove("activa");});document.getElementById(id).classList.add("activa");}
-function irIngredientes(){if(!document.getElementById("fecha").value){mostrarToast("⚠️ Ingresá la fecha",true);return;}if(!turnoSel){mostrarToast("⚠️ Selecioná el turno",true);return;}if(!categoriaSel){mostrarToast("⚠️ Selecioná la categoría",true);return;}if(!ingredientes.length){mostrarToast("⚠️ Espera un momento...",true);return;}var f=document.getElementById("fecha").value.split("-");var fl=f[2]+"/"+f[1]+"/"+f[0];document.getElementById("resumen").innerHTML='<div class="resumen-item"><div class="lbl">Fecha</div><div class="val">📅 '+fl+'</div></div><div class="resumen-item"><div class="lbl">Turno</div><div class="val">'+(turnoSel==="M"?"🌅 Mañana":"🌆 Tarde")+'</div></div><div class="resumen-item" style="flex-basis:100%"><div class="lbl">Categoría</div><div class="val">🐄 '+categoriaSel+'</div></div>';renderIngGrid();mostrarPantalla("p-ingredientes");window.scrollTo(0,0);}
+function irIngredientes(){if(!document.getElementById("fecha").value){mostrarToast("⚠️ Ingresá la fecha",true);return;}if(!turnoSel){mostrarToast("⚠️ Seleccioná el turno",true);return;}if(!categoriaSel){mostrarToast("⚠️ Seleccioná la categoría",true);return;}if(!ingredientes.length){mostrarToast("⚠️ Espera...",true);return;}var f=document.getElementById("fecha").value.split("-");var fl=f[2]+"/"+f[1]+"/"+f[0];document.getElementById("resumen").innerHTML='<div class="resumen-item"><div class="lbl">Fecha</div><div class="val">📅 '+fl+'</div></div><div class="resumen-item"><div class="lbl">Turno</div><div class="val">'+(turnoSel==="M"?"🌅 Mañana":"🌆 Tarde")+'</div></div><div class="resumen-item" style="flex-basis:100%"><div class="lbl">Categoría</div><div class="val">🐄 '+categoriaSel+'</div></div>';renderIngGrid();mostrarPantalla("p-ingredientes");window.scrollTo(0,0);}
 function volverDatos(){mostrarPantalla("p-datos");window.scrollTo(0,0);}
 function cambiarTab(tab,el){document.querySelectorAll(".tab").forEach(function(t){t.classList.remove("active");});el.classList.add("active");document.getElementById("sub-carga").style.display=tab==="carga"?"block":"none";document.getElementById("sub-historial").style.display=tab==="historial"?"block":"none";if(tab==="historial")cargarHistorial();}
 function selTurno(t){turnoSel=t;document.getElementById("btn-M").classList.toggle("sel",t==="M");document.getElementById("btn-T").classList.toggle("sel",t==="T");}
 function renderCategorias(){var h="";CATEGORIAS.forEach(function(c){var id="cat_"+c.replace(/[^a-zA-Z0-9]/g,"_");h+='<div class="cat-btn" id="'+id+'" onclick="selCategoria(\''+c.replace(/'/g,"\\'")+ '\')">'+c+'</div>';});document.getElementById("cat-grid").innerHTML=h;}
 function selCategoria(c){categoriaSel=c;document.querySelectorAll(".cat-btn").forEach(function(b){b.classList.remove("sel");});document.getElementById("cat_"+c.replace(/[^a-zA-Z0-9]/g,"_")).classList.add("sel");}
-function cargarIngredientes(){if(!SCRIPT_URL||SCRIPT_URL.includes("PEGAR")){iniciarIngredientes(INGREDIENTES_DEFAULT);return;}fetch(SCRIPT_URL+"?action=ingredientes").then(function(r){return r.json();}).then(function(res){iniciarIngredientes(res.data||INGREDIENTES_DEFAULT);}).catch(function(){iniciarIngredientes(INGREDIENTES_DEFAULT);});}
+function cargarIngredientes(){fetch(SCRIPT_URL+"?action=ingredientes").then(function(r){return r.json();}).then(function(res){iniciarIngredientes(res.data||INGREDIENTES_DEFAULT);}).catch(function(){iniciarIngredientes(INGREDIENTES_DEFAULT);});}
 function iniciarIngredientes(ings){ingredientes=ings;ingredientes.forEach(function(ing){kgCargados[ing]=0;});}
 function renderIngGrid(){var h="";ingredientes.forEach(function(ing,i){var esR=ing.toLowerCase().includes("rollo");var val=kgCargados[ing]||0;h+='<div class="ing-btn'+(val>0?" cargado":"")+'" id="ingbtn_'+i+'" onclick="abrirSheet('+i+')"><div class="ing-nom">'+ing+'</div><div class="ing-val">'+(val>0?val.toLocaleString("es-AR"):"—")+'</div><div class="ing-unid">'+(esR?"unidades":"kg")+'</div></div>';});document.getElementById("ing-grid").innerHTML=h;}
 function actualizarIngBtn(i){var ing=ingredientes[i];var val=kgCargados[ing]||0;var btn=document.getElementById("ingbtn_"+i);if(!btn)return;btn.className="ing-btn"+(val>0?" cargado":"");btn.querySelector(".ing-val").textContent=val>0?val.toLocaleString("es-AR"):"—";btn.querySelector(".ing-unid").textContent=ing.toLowerCase().includes("rollo")?"unidades":"kg";}
@@ -206,10 +190,10 @@ function abrirSheet(i){ingActivo=i;var ing=ingredientes[i];var esR=ing.toLowerCa
 function cerrarSheet(e){if(e.target===document.getElementById("overlay"))cerrarSheetBtn();}
 function cerrarSheetBtn(){document.getElementById("overlay").classList.remove("abierto");document.getElementById("sheet-input").blur();ingActivo=null;}
 function confirmarKg(){if(ingActivo===null)return;var val=parseFloat(document.getElementById("sheet-input").value)||0;kgCargados[ingredientes[ingActivo]]=val;actualizarIngBtn(ingActivo);cerrarSheetBtn();if(val>0)mostrarToast("✓ "+ingredientes[ingActivo]+": "+val.toLocaleString("es-AR"));}
-function guardar(){var datos={operario:usuarioActual,fecha:document.getElementById("fecha").value,turno:turnoSel==="M"?"Mañana":"Tarde",categoria:categoriaSel,ingredientes:kgCargados};var btn=document.getElementById("btn-guardar");btn.disabled=true;btn.innerHTML='<span class="spinner"></span>Guardando...';fetch(SCRIPT_URL,{method:"POST",redirect:"follow",headers:{"Content-Type":"application/json"},body:JSON.stringify({action:"guardar",datos:datos})}).then(function(r){return r.json();}).then(function(res){btn.disabled=false;btn.innerHTML="💾 Guardar Registro";if(res.ok){mostrarToast("✓ Registro guardado");limpiar();}else mostrarToast("❌ "+res.mensaje,true);}).catch(function(){btn.disabled=false;btn.innerHTML="💾 Guardar Registro";mostrarToast("❌ Error de conexión. Intentá de nuevo.",true);});}
+function guardar(){var datos={operario:usuarioActual,fecha:document.getElementById("fecha").value,turno:turnoSel==="M"?"Mañana":"Tarde",categoria:categoriaSel,ingredientes:kgCargados};var btn=document.getElementById("btn-guardar");btn.disabled=true;btn.innerHTML='<span class="spinner"></span>Guardando...';fetch(SCRIPT_URL,{method:"POST",redirect:"follow",headers:{"Content-Type":"text/plain"},body:JSON.stringify({action:"guardar",datos:datos})}).then(function(r){return r.json();}).then(function(res){btn.disabled=false;btn.innerHTML="💾 Guardar Registro";if(res.ok){mostrarToast("✓ Registro guardado");limpiar();}else mostrarToast("❌ "+res.mensaje,true);}).catch(function(err){btn.disabled=false;btn.innerHTML="💾 Guardar Registro";mostrarToast("❌ Error: "+err.message,true);});}
 function limpiar(){turnoSel="";categoriaSel="";ingredientes.forEach(function(ing){kgCargados[ing]=0;});document.getElementById("btn-M").classList.remove("sel");document.getElementById("btn-T").classList.remove("sel");document.querySelectorAll(".cat-btn").forEach(function(b){b.classList.remove("sel");});setFechaHoy();volverDatos();}
 function cargarHistorial(){document.getElementById("lista-historial").innerHTML='<div class="vacio">Cargando...</div>';fetch(SCRIPT_URL+"?action=historial").then(function(r){return r.json();}).then(function(res){var d=res.data||[];if(!d.length){document.getElementById("lista-historial").innerHTML='<div class="vacio">Todavía no hay registros.</div>';return;}var h="";d.forEach(function(r){var kg=typeof r.kgTotales==="number"?r.kgTotales.toLocaleString("es-AR",{maximumFractionDigits:0})+" kg":"";h+='<div class="hist-item"><div class="hist-header"><span class="hist-fecha">📅 '+r.fecha+'</span><span class="hist-turno">'+r.turno+'</span></div>'+(r.operario?'<div class="hist-operario">👤 '+r.operario+'</div>':'')+'<div class="hist-cat">🐄 '+r.categoria+'</div>'+(kg?'<div class="hist-kg">⚖️ '+kg+' totales</div>':'')+'</div>';});document.getElementById("lista-historial").innerHTML=h;}).catch(function(){document.getElementById("lista-historial").innerHTML='<div class="vacio">No se pudo cargar el historial.</div>';});}
 function mostrarToast(msg,esError){var t=document.getElementById("toast");t.textContent=msg;t.className=(esError?"error":"")+" visible";clearTimeout(t._timer);t._timer=setTimeout(function(){t.className=esError?"error":"";},3000);}
 </script>
 </body>
-  </html>
+</html>
